@@ -1,0 +1,254 @@
+<!-- Overlay éxito -->
+<div *ngIf="guardadoExitoso" class="success-overlay">
+  <div class="success-box">
+    <div class="success-check">✓</div>
+    <h4>¡Guardado exitosamente!</h4>
+    <p>Redirigiendo...</p>
+  </div>
+</div>
+
+<!-- Sidebar overlay móvil -->
+<div class="sidebar-overlay" [class.active]="sidebarAbierto" (click)="toggleSidebar()"></div>
+
+<div class="d-flex min-vh-100" style="background:#f5f4f0;font-family:'DM Sans',sans-serif;">
+
+  <app-sidebar [sidebarAbierto]="sidebarAbierto"></app-sidebar>
+
+  <div class="emp-main-content">
+
+    <nav class="mobile-nav align-items-center justify-content-between px-3 py-2">
+      <button class="hamburger-btn" (click)="toggleSidebar()">
+        <span></span><span></span><span></span>
+      </button>
+      <span class="font-weight-bold" style="color:#1a1a2e;font-size:0.85rem;letter-spacing:0.1em;">PROVEDATOS</span>
+      <span style="color:#e8b84b;font-size:1.2rem;">⬡</span>
+    </nav>
+
+    <div class="p-3 p-md-5">
+
+      <!-- Header -->
+      <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-end mb-4">
+        <div class="mb-3 mb-md-0">
+          <h1 class="font-weight-bold mb-1" style="font-size:2rem;color:#1a1a2e;">
+            {{ esEdicion ? 'Editar Empleado' : 'Nuevo Empleado' }}
+          </h1>
+          <p class="text-muted mb-0 small">Complete los datos en cada paso</p>
+        </div>
+        <button class="btn btn-outline-secondary btn-sm" (click)="salir()">← Volver</button>
+      </div>
+
+      <!-- Error global -->
+      <div *ngIf="mensajeError" class="alert alert-danger alert-dismissible fade show" role="alert">
+        <strong>⚠ Error:</strong> {{ mensajeError }}
+        <button type="button" class="close" (click)="mensajeError=''"><span>&times;</span></button>
+      </div>
+
+      <!-- Stepper -->
+      <div class="stepper-wrapper mb-4">
+        <div class="stepper-item" [class.stepper-active]="step === 1" [class.stepper-done]="step > 1">
+          <div class="stepper-circle">
+            <span *ngIf="step <= 1">1</span>
+            <span *ngIf="step > 1">✓</span>
+          </div>
+          <div class="stepper-info">
+            <div class="stepper-title">Datos Personales</div>
+            <div class="stepper-sub">Información personal</div>
+          </div>
+        </div>
+        <div class="stepper-line" [class.stepper-line-done]="step > 1"></div>
+        <div class="stepper-item" [class.stepper-active]="step === 2">
+          <div class="stepper-circle">2</div>
+          <div class="stepper-info">
+            <div class="stepper-title">Datos Laborales</div>
+            <div class="stepper-sub">Información laboral</div>
+          </div>
+        </div>
+      </div>
+
+      <div *ngIf="cargando" class="text-center py-5">
+        <div class="spinner-border text-warning" role="status"></div>
+      </div>
+
+      <!-- STEP 1 -->
+      <div *ngIf="!cargando && step === 1">
+        <div class="card border-0 shadow-sm rounded-lg">
+          <div class="card-body p-3 p-md-5">
+            <h5 class="font-weight-bold mb-4" style="color:#1a1a2e;">Datos Personales</h5>
+            <div class="row">
+
+              <div class="col-12 col-md-6 mb-3">
+                <label class="form-label-custom">Nombres *</label>
+                <input type="text" class="form-control" [class.is-invalid]="errores.nombres"
+                  [(ngModel)]="empleado.nombres" placeholder="Ingrese los nombres">
+                <div class="invalid-feedback">{{ errores.nombres }}</div>
+              </div>
+
+              <div class="col-12 col-md-6 mb-3">
+                <label class="form-label-custom">Apellidos *</label>
+                <input type="text" class="form-control" [class.is-invalid]="errores.apellidos"
+                  [(ngModel)]="empleado.apellidos" placeholder="Ingrese los apellidos">
+                <div class="invalid-feedback">{{ errores.apellidos }}</div>
+              </div>
+
+              <div class="col-12 col-md-6 mb-3">
+                <label class="form-label-custom">Cédula * <span class="text-success">(Válida)</span></label>
+                <input type="text" class="form-control" [class.is-invalid]="errores.cedula"
+                  [(ngModel)]="empleado.cedula" placeholder="Ej: 1712345678" maxlength="10">
+                <div class="invalid-feedback">{{ errores.cedula }}</div>
+              </div>
+
+              <div class="col-12 col-md-6 mb-3">
+                <label class="form-label-custom">Provincia</label>
+                <select class="form-control" [(ngModel)]="empleado.id_provincia_personal">
+                  <option [ngValue]="undefined">Escoja una provincia...</option>
+                  <option *ngFor="let p of provincias" [ngValue]="p.id_provincia">{{ p.nombre_provincia }}</option>
+                </select>
+              </div>
+
+              <div class="col-12 col-md-6 mb-3">
+                <label class="form-label-custom">
+                  Fecha de Nacimiento
+                  <span class="text-muted" style="font-size:0.7rem;">(Mayor de 18 años)</span>
+                </label>
+                <input type="date" class="form-control" [class.is-invalid]="errores.fecha_nacimiento"
+                  [(ngModel)]="empleado.fecha_nacimiento" [max]="fechaMaxNacimiento">
+                <div class="invalid-feedback">{{ errores.fecha_nacimiento }}</div>
+              </div>
+
+              <div class="col-12 col-md-6 mb-3">
+                <label class="form-label-custom">Email <span class="text-success">(Válido)</span></label>
+                <input type="email" class="form-control" [class.is-invalid]="errores.email"
+                  [(ngModel)]="empleado.email" placeholder="correo@ejemplo.com">
+                <div class="invalid-feedback">{{ errores.email }}</div>
+              </div>
+
+              <div class="col-12 col-md-6 mb-3">
+                <label class="form-label-custom">Observaciones</label>
+                <textarea class="form-control" rows="3" [(ngModel)]="empleado.observaciones_personales"
+                  placeholder="Comentario u observación..."></textarea>
+              </div>
+
+              <div class="col-12 col-md-6 mb-3">
+                <label class="form-label-custom">Fotografía</label>
+                <div class="d-flex align-items-center">
+                  <div class="foto-preview mr-3">
+                    <img *ngIf="empleado.foto" [src]="empleado.foto" alt="foto">
+                    <span *ngIf="!empleado.foto">👤</span>
+                  </div>
+                  <div class="d-flex flex-column" style="gap:0.4rem;">
+                    <input type="file" class="d-none" #fileInput accept="image/*" (change)="onFotoChange($event)">
+                    <button class="btn btn-outline-secondary btn-sm" (click)="fileInput.click()">📷 Cargar Imagen</button>
+                    <small *ngIf="empleado.foto" class="text-success">✓ Imagen cargada</small>
+                    <small *ngIf="!empleado.foto" class="text-muted">JPG, PNG — máx 2MB</small>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+        <div class="d-flex justify-content-between mt-3 flex-wrap" style="gap:0.5rem;">
+          <button class="btn btn-outline-secondary" (click)="salir()">Cancelar</button>
+          <div class="d-flex" style="gap:0.5rem;">
+            <button class="btn btn-outline-warning" (click)="reporte()">Reporte</button>
+            <button class="btn btn-warning font-weight-bold px-4" style="color:#1a1a2e;" (click)="continuar()">Continuar →</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 2 -->
+      <div *ngIf="!cargando && step === 2">
+        <div class="card border-0 shadow-sm rounded-lg">
+          <div class="card-body p-3 p-md-5">
+            <h5 class="font-weight-bold mb-4" style="color:#1a1a2e;">Datos Laborales</h5>
+            <div class="row">
+
+              <div class="col-12 col-md-6 mb-3">
+                <label class="form-label-custom">Fecha de Ingreso *</label>
+                <input type="date" class="form-control" [class.is-invalid]="errores.fecha_ingreso"
+                  [(ngModel)]="empleado.fecha_ingreso">
+                <div class="invalid-feedback">{{ errores.fecha_ingreso }}</div>
+              </div>
+
+              <div class="col-12 col-md-6 mb-3">
+                <label class="form-label-custom">Cargo *</label>
+                <input type="text" class="form-control" [class.is-invalid]="errores.cargo"
+                  [(ngModel)]="empleado.cargo" placeholder="Ej: Jefe de Bodega">
+                <div class="invalid-feedback">{{ errores.cargo }}</div>
+              </div>
+
+              <div class="col-12 col-md-6 mb-3">
+                <label class="form-label-custom">Departamento</label>
+                <input type="text" class="form-control" [(ngModel)]="empleado.departamento" placeholder="Ej: Bodegas">
+              </div>
+
+              <div class="col-12 col-md-6 mb-3">
+                <label class="form-label-custom">Provincia</label>
+                <select class="form-control" [(ngModel)]="empleado.id_provincia_laboral">
+                  <option [ngValue]="undefined">Escoja una provincia...</option>
+                  <option *ngFor="let p of provincias" [ngValue]="p.id_provincia">{{ p.nombre_provincia }}</option>
+                </select>
+              </div>
+
+              <div class="col-12 col-md-6 mb-3">
+                <label class="form-label-custom">Sueldo</label>
+                <div class="input-group">
+                  <input type="number" class="form-control" [class.is-invalid]="errores.sueldo"
+                    [(ngModel)]="empleado.sueldo" placeholder="530.00" min="0" step="0.01">
+                  <div class="input-group-append">
+                    <span class="input-group-text font-weight-bold">USD</span>
+                  </div>
+                  <div class="invalid-feedback">{{ errores.sueldo }}</div>
+                </div>
+              </div>
+
+              <div class="col-12 col-md-6 mb-3">
+                <label class="form-label-custom">Jornada Parcial</label>
+                <div class="d-flex mt-2" style="gap:2rem;">
+                  <div class="custom-control custom-radio">
+                    <input type="radio" class="custom-control-input" id="jornadaSi" name="jornada"
+                      [value]="1" [(ngModel)]="empleado.jornada_parcial">
+                    <label class="custom-control-label" for="jornadaSi">Sí</label>
+                  </div>
+                  <div class="custom-control custom-radio">
+                    <input type="radio" class="custom-control-input" id="jornadaNo" name="jornada"
+                      [value]="0" [(ngModel)]="empleado.jornada_parcial">
+                    <label class="custom-control-label" for="jornadaNo">No</label>
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-12 col-md-6 mb-3">
+                <label class="form-label-custom">Estado</label>
+                <select class="form-control" [(ngModel)]="empleado.estado">
+                  <option [ngValue]="1">1 VIGENTE</option>
+                  <option [ngValue]="9">9 RETIRADO</option>
+                </select>
+              </div>
+
+              <div class="col-12 mb-3">
+                <label class="form-label-custom">Observaciones</label>
+                <textarea class="form-control" rows="3" [(ngModel)]="empleado.observaciones_laborales"
+                  placeholder="Comentario u observación laboral..."></textarea>
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+        <div class="d-flex justify-content-between mt-3 flex-wrap" style="gap:0.5rem;">
+          <button class="btn btn-outline-secondary" (click)="step = 1">← Anterior</button>
+          <div class="d-flex" style="gap:0.5rem;">
+            <button class="btn btn-outline-warning" (click)="reporte()">Reporte</button>
+            <button class="btn btn-success font-weight-bold px-4" (click)="guardar()" [disabled]="guardando">
+              <span *ngIf="guardando" class="spinner-border spinner-border-sm mr-1"></span>
+              {{ guardando ? 'Guardando...' : 'Guardar' }}
+            </button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>

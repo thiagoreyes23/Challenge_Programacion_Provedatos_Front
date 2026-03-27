@@ -1,0 +1,95 @@
+<!--EMPLEADO REPORTE HTML-->
+
+<div class="sidebar-overlay" [class.active]="sidebarAbierto" (click)="toggleSidebar()"></div>
+
+<div class="d-flex" style="height:100vh;background:#f5f4f0;font-family:'DM Sans',sans-serif;overflow:hidden;">
+
+  <!-- Sidebar -->
+  <app-sidebar [sidebarAbierto]="sidebarAbierto"></app-sidebar>
+
+  <!-- Main — columna flex que llena el alto -->
+  <div class="emp-main-content">
+
+    <!-- Navbar móvil -->
+    <nav class="mobile-nav align-items-center justify-content-between px-3 py-2">
+      <button class="hamburger-btn" (click)="toggleSidebar()">
+        <span></span><span></span><span></span>
+      </button>
+      <span class="font-weight-bold" style="color:#1a1a2e;font-size:0.85rem;letter-spacing:0.1em;">PROVEDATOS</span>
+      <span style="color:#e8b84b;font-size:1.2rem;">⬡</span>
+    </nav>
+
+    <!-- ZONA SCROLLABLE -->
+    <div class="reporte-scroll-area">
+
+      <!-- Header -->
+      <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-end mb-4">
+        <div class="mb-2 mb-md-0">
+          <h1 class="font-weight-bold mb-1" style="font-size:2rem;color:#1a1a2e;">Reporte General</h1>
+          <p class="text-muted mb-0 small">Click en columna para ordenar — Total: <strong>{{ empleados.length }}</strong> empleados</p>
+        </div>
+        <button class="btn btn-outline-secondary btn-sm" (click)="salir()">← Volver</button>
+      </div>
+
+      <!-- Loading -->
+      <div *ngIf="cargando" class="text-center py-5">
+        <div class="spinner-border text-warning" role="status"></div>
+      </div>
+
+      <!-- Tabla -->
+      <div *ngIf="!cargando" class="card border-0 shadow-sm rounded-lg">
+        <div class="table-responsive">
+          <table class="table mb-0">
+            <thead style="background:#1a1a2e;">
+              <tr>
+                <th class="th-sort" (click)="ordenarPor('apellidos')">Nombre {{ getSortIcon('apellidos') }}</th>
+                <th class="th-sort" (click)="ordenarPor('codigo')">Código {{ getSortIcon('codigo') }}</th>
+                <th class="th-sort" (click)="ordenarPor('cedula')">Cédula {{ getSortIcon('cedula') }}</th>
+                <th class="th-sort" (click)="ordenarPor('cargo')">Cargo {{ getSortIcon('cargo') }}</th>
+                <th class="th-sort" (click)="ordenarPor('departamento')">Dpto {{ getSortIcon('departamento') }}</th>
+                <th class="th-sort" (click)="ordenarPor('sueldo')">Sueldo {{ getSortIcon('sueldo') }}</th>
+                <th class="th-sort" (click)="ordenarPor('fecha_ingreso')">F. Ingreso {{ getSortIcon('fecha_ingreso') }}</th>
+                <th class="th-sort" (click)="ordenarPor('estado')">Estado {{ getSortIcon('estado') }}</th>
+                <th class="th-header">Prov. Personal</th>
+                <th class="th-header">Prov. Laboral</th>
+                <th class="th-header">Email</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngIf="empleados.length === 0">
+                <td colspan="11" class="text-center py-5 text-muted">No hay empleados registrados</td>
+              </tr>
+              <tr *ngFor="let emp of empleados" class="emp-row">
+                <td class="font-weight-bold td-nowrap" style="color:#1a1a2e;">{{ emp.apellidos }} {{ emp.nombres }}</td>
+                <td class="text-muted font-weight-bold td-code">{{ emp.codigo }}</td>
+                <td>{{ emp.cedula }}</td>
+                <td>{{ emp.cargo || '—' }}</td>
+                <td>{{ emp.departamento || '—' }}</td>
+                <td class="font-weight-bold">{{ emp.sueldo ? ('$' + emp.sueldo) : '—' }}</td>
+                <td class="td-nowrap">{{ emp.fecha_ingreso || '—' }}</td>
+                <td>
+                  <span [ngClass]="emp.estado === 1 ? 'badge-vigente' : 'badge-retirado'">
+                    {{ getEstadoLabel(emp.estado!) }}
+                  </span>
+                </td>
+                <td>{{ emp.provincia_personal?.nombre_provincia || '—' }}</td>
+                <td>{{ emp.provincia_laboral?.nombre_provincia || '—' }}</td>
+                <td class="td-nowrap">{{ emp.email || '—' }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- FOOTER SIEMPRE VISIBLE -->
+    <div class="reporte-footer">
+      <small class="text-muted">Total: <strong>{{ empleados.length }}</strong> empleados</small>
+      <button class="btn font-weight-bold btn-sm px-4" style="background:#fee2e2;color:#dc2626;" (click)="salir()">
+        Salir
+      </button>
+    </div>
+
+  </div>
+</div>

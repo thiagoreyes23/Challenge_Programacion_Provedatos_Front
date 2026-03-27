@@ -1,0 +1,143 @@
+<div class="sidebar-overlay" [class.active]="sidebarAbierto" (click)="toggleSidebar()"></div>
+
+<div class="d-flex" style="min-height:100vh;background:#f5f4f0;font-family:'DM Sans',sans-serif;">
+
+  <app-sidebar [sidebarAbierto]="sidebarAbierto"></app-sidebar>
+
+  <div class="emp-main-content d-flex flex-column">
+
+    <nav class="mobile-nav align-items-center justify-content-between px-3 py-2">
+      <button class="hamburger-btn" (click)="toggleSidebar()">
+        <span></span><span></span><span></span>
+      </button>
+      <span class="font-weight-bold" style="color:#1a1a2e;font-size:0.85rem;letter-spacing:0.1em;">PROVEDATOS</span>
+      <span style="color:#e8b84b;font-size:1.2rem;">⬡</span>
+    </nav>
+
+    <div class="p-3 p-md-5 flex-grow-1">
+
+      <!-- Header -->
+      <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-end mb-4">
+        <div class="mb-3 mb-md-0">
+          <h1 class="font-weight-bold mb-1" style="font-size:2rem;color:#1a1a2e;">Empleados</h1>
+          <p class="text-muted mb-0">Gestión de personal</p>
+        </div>
+        <button class="btn btn-warning font-weight-bold rounded-pill px-4" style="color:#1a1a2e;" (click)="nuevo()">
+          + Nuevo Empleado
+        </button>
+      </div>
+
+      <!-- Filtros -->
+      <div class="card border-0 shadow-sm rounded-lg mb-4">
+        <div class="card-body">
+          <div class="row align-items-end">
+            <div class="col-12 col-md-5 mb-2 mb-md-0">
+              <label class="text-muted text-uppercase" style="font-size:0.75rem;letter-spacing:0.08em;">Nombre</label>
+              <input type="text" class="form-control" [(ngModel)]="nombre"
+                placeholder="Buscar por nombre..." (keyup.enter)="buscar()">
+            </div>
+            <div class="col-12 col-md-5 mb-2 mb-md-0">
+              <label class="text-muted text-uppercase" style="font-size:0.75rem;letter-spacing:0.08em;">Código</label>
+              <input type="text" class="form-control" [(ngModel)]="codigo"
+                placeholder="Buscar por código..." (keyup.enter)="buscar()">
+            </div>
+            <div class="col-12 col-md-2">
+              <button class="btn btn-dark btn-block font-weight-bold" (click)="buscar()">Buscar</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tabla -->
+      <div class="card border-0 shadow-sm rounded-lg mb-3">
+        <div class="table-responsive">
+          <table class="table mb-0">
+            <thead style="background:#1a1a2e;">
+              <tr>
+                <th class="text-uppercase text-white-50 border-0" style="font-size:0.75rem;letter-spacing:0.1em;padding:1rem 1.5rem;">Nombre Completo</th>
+                <th class="text-uppercase text-white-50 border-0" style="font-size:0.75rem;letter-spacing:0.1em;padding:1rem 1.5rem;">Código</th>
+                <th class="text-uppercase text-white-50 border-0" style="font-size:0.75rem;letter-spacing:0.1em;padding:1rem 1.5rem;">Estado</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngIf="cargando">
+                <td colspan="3" class="text-center py-5">
+                  <div class="spinner-border text-warning" role="status"></div>
+                </td>
+              </tr>
+              <tr *ngIf="!cargando && empleados.length === 0">
+                <td colspan="3" class="text-center py-5 text-muted">No se encontraron empleados</td>
+              </tr>
+              <tr *ngFor="let emp of empleados" (click)="seleccionar(emp)" class="emp-row">
+                <td class="border-0 py-3 px-4 font-weight-bold" style="color:#1a1a2e;">{{ emp.apellidos }} {{ emp.nombres }}</td>
+                <td class="border-0 py-3 px-4 text-muted font-weight-bold" style="font-size:0.85rem;">{{ emp.codigo }}</td>
+                <td class="border-0 py-3 px-4">
+                  <span [ngClass]="emp.estado === 1 ? 'badge-vigente' : 'badge-retirado'">
+                    {{ getEstadoLabel(emp.estado!) }}
+                  </span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Paginación -->
+      <div class="d-flex flex-column flex-md-row justify-content-between align-items-center mb-4" style="gap:1rem;">
+        <small class="text-muted">
+          Mostrando <strong>{{ empleados.length }}</strong> de <strong>{{ total }}</strong> empleados
+          — Página <strong>{{ paginaActual }}</strong> de <strong>{{ totalPaginas }}</strong>
+        </small>
+
+        <nav *ngIf="totalPaginas > 1">
+          <ul class="pagination pagination-sm mb-0">
+
+            <!-- Primera -->
+            <li class="page-item" [class.disabled]="paginaActual === 1">
+              <button class="page-link pag-btn" (click)="irPagina(1)" [disabled]="paginaActual === 1">
+                «
+              </button>
+            </li>
+
+            <!-- Anterior -->
+            <li class="page-item" [class.disabled]="paginaActual === 1">
+              <button class="page-link pag-btn" (click)="irPagina(paginaActual - 1)" [disabled]="paginaActual === 1">
+                ‹
+              </button>
+            </li>
+
+            <!-- Páginas numeradas -->
+            <li *ngFor="let p of getPaginas()" class="page-item" [class.active]="p === paginaActual">
+              <button class="page-link pag-btn" (click)="irPagina(p)">{{ p }}</button>
+            </li>
+
+            <!-- Siguiente -->
+            <li class="page-item" [class.disabled]="paginaActual === totalPaginas">
+              <button class="page-link pag-btn" (click)="irPagina(paginaActual + 1)" [disabled]="paginaActual === totalPaginas">
+                ›
+              </button>
+            </li>
+
+            <!-- Última -->
+            <li class="page-item" [class.disabled]="paginaActual === totalPaginas">
+              <button class="page-link pag-btn" (click)="irPagina(totalPaginas)" [disabled]="paginaActual === totalPaginas">
+                »
+              </button>
+            </li>
+
+          </ul>
+        </nav>
+      </div>
+
+      <!-- Footer -->
+      <div class="d-flex flex-column flex-md-row justify-content-between align-items-center">
+        <small class="text-muted mb-2 mb-md-0">Use los filtros para refinar la búsqueda.</small>
+        <div>
+          <button class="btn btn-outline-secondary mr-2 font-weight-bold" (click)="reporte()">Reporte</button>
+          <button class="btn font-weight-bold" style="background:#fee2e2;color:#dc2626;" (click)="salir()">Salir</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>

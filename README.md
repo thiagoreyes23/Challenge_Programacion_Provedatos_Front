@@ -1,5 +1,3 @@
-# Challenge_Programacion_Provedatos_Front
-
 # Empleados Frontend — Angular
 
 Interfaz de usuario construida con Angular 19 y Bootstrap 4.
@@ -69,4 +67,3 @@ src/app/
 | /empleados/nuevo | EmpleadoForm | Crear nuevo empleado |
 | /empleados/editar/:id | EmpleadoForm | Editar empleado existente |
 | /empleados/reporte | EmpleadoReporte | Reporte general |
-

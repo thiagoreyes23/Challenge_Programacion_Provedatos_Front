@@ -14,7 +14,7 @@ Interfaz de usuario construida con Angular 19 y Bootstrap 4.
 
 ## Instalación
 
-1. Ingresa a la carpeta del frontend:
+1. Clona el repositorio e ingresa a la carpeta del frontend:
 ```bash
    cd empleados-frontend
 ```

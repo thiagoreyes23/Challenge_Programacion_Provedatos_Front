@@ -16,7 +16,7 @@ Interfaz de usuario construida con Angular 19 y Bootstrap 4.
 
 1. Clona el repositorio e ingresa a la carpeta del frontend:
 ```bash
-   cd empleados-frontend
+   cd Challenge_Programacion_Provedatos_Front
 ```
 
 2. Instala las dependencias:
